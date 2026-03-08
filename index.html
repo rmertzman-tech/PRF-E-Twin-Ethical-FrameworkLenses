@@ -1,45 +1,1576 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UCP Ethical Simulation</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework Lens - Which Philosophy Lives in You?</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .import-zone {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 60px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+        }
+        
+        .import-zone:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+        
+        .import-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .etwin-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .scenario-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .scenario-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .scenario-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .framework-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .framework-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .framework-card.utilitarian { border-left-color: #28a745; }
+        .framework-card.kantian { border-left-color: #007bff; }
+        .framework-card.virtue { border-left-color: #ffc107; }
+        .framework-card.care { border-left-color: #e83e8c; }
+        .framework-card.contract { border-left-color: #6f42c1; }
+        .framework-card.coherence { border-left-color: #667eea; }
+        
+        .framework-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .framework-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .framework-recommendation {
+            font-size: 1.05em;
+            color: #667eea;
+            font-weight: 600;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .framework-reasoning {
+            font-size: 0.95em;
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        
+        .framework-assumptions {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status-capable {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-degraded {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .choice-button {
+            padding: 20px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.05em;
+            font-weight: 600;
+        }
+        
+        .choice-button:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .choice-button.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .stress-slider-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .match-result {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .match-frameworks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .match-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        .match-badge.matched {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .match-badge.diverged {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            justify-content: space-between;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .pattern-card.warning {
+            border-left-color: #dc3545;
+        }
+        
+        .pattern-card.success {
+            border-left-color: #28a745;
+        }
+        
+        .assumption-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .assumption-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #ddd;
+        }
+        
+        .assumption-list li.holds {
+            border-left-color: #28a745;
+        }
+        
+        .assumption-list li.fails {
+            border-left-color: #dc3545;
+        }
+        
+        .debug-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid #ffc107;
+        }
+    </style>
 </head>
 <body>
-  <h1>UCP v2.0 Ethical Simulation</h1>
-  <section>
-    <label for="roleSelect">Role:</label>
-    <select id="roleSelect">
-      <option value="Instructor">Instructor</option>
-      <option value="Researcher">Researcher</option>
-      <option value="Practitioner">Practitioner</option>
-    </select>
-    <button id="loadPresetBtn">Load Preset</button>
-  </section>
-  <section>
-    <label for="moduleSelect">Select Module:</label>
-    <select id="moduleSelect">
-      <option value="Ethical Dilemma: Trolley Problem">Trolley Problem</option>
-      <option value="Whistleblower Simulation">Whistleblower</option>
-      <option value="Paradigm Shift and PRF Drift">PRF Shift</option>
-    </select>
-    <p id="moduleDescription"></p>
-  </section>
-  <section>
-    <h2>Agent Setup</h2>
-    <textarea id="agentInput" rows="8" cols="60">
-[
-  {"name": "Ada", "identity_kernel": "integrity", "ita_role": "engineer", "prf": "consequentialist"},
-  {"name": "Turing", "identity_kernel": "logic", "ita_role": "scientist", "prf": "deontologist"}
-]
-    </textarea><br>
-    <button id="simulateBtn">Run Simulation</button>
-  </section>
-  <section>
-    <h2>Simulation Results</h2>
-    <pre id="output"></pre>
-  </section>
-  <script src="/static/app.js"></script>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Framework Lens</h1>
+            <p>Which Philosophy Lives in You?</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            
+            <!-- Introduction -->
+            <div class="section active" id="intro">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Bridge Your Experience to Philosophy</h2>
+                
+                <div class="alert alert-info">
+                    <strong>🎯 Purpose:</strong> You've discovered your unique ethical framework (Digital E-Twin). Now let's see how it relates to classical philosophical theories—and where YOUR assumptions break down.
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 30px 0;">
+                    <h3 style="margin-bottom: 20px;">What You'll Discover:</h3>
+                    <ul style="line-height: 2; font-size: 1.05em;">
+                        <li>📊 <strong>Framework Affinity:</strong> Which classical theories match your choices?</li>
+                        <li>⚠️ <strong>Hidden Patterns:</strong> Loyalty Override, Pressure Collapse, Functional Equivalence</li>
+                        <li>🔬 <strong>Assumption Testing:</strong> What do different frameworks ASSUME about you?</li>
+                        <li>💪 <strong>Stress Testing:</strong> Which frameworks FAIL when you're depleted?</li>
+                        <li>📝 <strong>Personalized Brief:</strong> Auto-generated analysis of YOUR ethical topology</li>
+                    </ul>
+                </div>
+                
+                <div class="import-zone" id="importZone">
+                    <div class="import-icon">📥</div>
+                    <h2>Import Your Digital E-Twin</h2>
+                    <p>Upload the JSON file you created with the PRF-22 app</p>
+                    <input type="file" id="fileInput" accept=".json">
+                </div>
+                
+                <div id="etwinPreview" style="display: none;"></div>
+                
+                <div class="nav-buttons">
+                    <div></div>
+                    <button class="btn-primary" onclick="startScenarios()" id="startBtn" disabled>
+                        Begin Framework Testing 🚀
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Scenarios (will be dynamically generated) -->
+            <div class="section" id="scenarios"></div>
+            
+            <!-- Results -->
+            <div class="section" id="results"></div>
+        </div>
+    </div>
+    
+    <script>
+        // State management
+        let eTwin = null;
+        let currentScenario = 0;
+        let stressMode = false;
+        let currentATCF = 0;
+        let studentChoices = [];
+        let matchData = [];
+        
+        // Debug logging
+        function debugLog(message, data) {
+            console.log(`[Framework Lens] ${message}`, data || '');
+        }
+        
+        // ALL 8 SCENARIOS RESTORED
+        const scenarios = [
+            {
+                id: 1,
+                title: "The Friend's Secret",
+                description: "Your close friend confides that they've been cheating on exams. They beg you not to tell anyone, saying their scholarship depends on their GPA. You know the professor and could report it anonymously.",
+                choices: [
+                    "Report anonymously to maintain academic integrity",
+                    "Keep the secret to protect your friendship",
+                    "Convince your friend to confess on their own",
+                    "Stay silent but distance yourself from the friend"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 0,
+                        label: "Report anonymously",
+                        reasoning: "Maximizes overall welfare by preserving academic integrity and fairness to other students",
+                        assumptions: ["Can predict long-term consequences", "Can calculate comparative harms"],
+                        atcfRequired: 0.6
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Report anonymously",
+                        reasoning: "Duty to uphold honesty and fairness; lying/cheating cannot be universalized",
+                        assumptions: ["Have autonomous choice", "Can reason from universal principles"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 2,
+                        label: "Convince friend to confess",
+                        reasoning: "The virtuous person helps others develop integrity, not just enforces rules",
+                        assumptions: ["Have time for character development", "Stable relationship context"],
+                        atcfRequired: 0.6
+                    },
+                    care: {
+                        choice: 1,
+                        label: "Keep the secret",
+                        reasoning: "Preserving the relationship and supporting your friend in crisis is primary",
+                        assumptions: ["Know the person involved", "Relationship has value"],
+                        atcfRequired: 0.4
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Report anonymously",
+                        reasoning: "Academic rules are part of implicit contract; fairness to all parties requires enforcement",
+                        assumptions: ["Can project future consequences", "Institutions function fairly"],
+                        atcfRequired: 0.7
+                    },
+                    coherence: {
+                        choice: 2,
+                        label: "Convince friend to confess",
+                        reasoning: "Maintains your coherence (integrity) while minimizing friend's identity damage",
+                        assumptions: ["Have capacity to navigate complexity", "Can maintain relationship"],
+                        atcfRequired: 0.5
+                    }
+                },
+                stressImpact: "Under stress, Care remains functional (low ATCF needed), but Utilitarian calculation becomes difficult"
+            },
+            {
+                id: 2,
+                title: "The Group Project",
+                description: "You're in a group project where one member isn't contributing. The others want to report them to the professor, which would lower their grade significantly. This person has confided in you about serious family issues affecting their work.",
+                choices: [
+                    "Report to professor as group decides",
+                    "Defend the struggling member and advocate for understanding",
+                    "Offer to do extra work to cover for them",
+                    "Privately tell them they need to contribute or you'll support reporting"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 3,
+                        label: "Warning then report",
+                        reasoning: "Balances fairness to group with giving person chance to change; maximizes learning for all",
+                        assumptions: ["Can calculate optimal outcome", "Person can respond rationally"],
+                        atcfRequired: 0.6
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Report as decided",
+                        reasoning: "Each person has duty to contribute; free-riding treats others as means",
+                        assumptions: ["Autonomous agents responsible for choices", "Rules apply universally"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 1,
+                        label: "Defend and advocate",
+                        reasoning: "Compassion and understanding are virtues; harsh judgment lacks phronesis (practical wisdom)",
+                        assumptions: ["Context matters for virtue", "Character shown in difficult situations"],
+                        atcfRequired: 0.6
+                    },
+                    care: {
+                        choice: 1,
+                        label: "Defend and advocate",
+                        reasoning: "Knowing their struggle creates responsibility to maintain relationship and advocate",
+                        assumptions: ["Have relational knowledge", "Care supersedes abstract fairness"],
+                        atcfRequired: 0.4
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Report as decided",
+                        reasoning: "Group contract requires equal contribution; fairness demands enforcement",
+                        assumptions: ["Contract was fair initially", "Enforcement mechanisms legitimate"],
+                        atcfRequired: 0.6
+                    },
+                    coherence: {
+                        choice: 1,
+                        label: "Defend and advocate",
+                        reasoning: "Your knowledge of context + their capacity state requires adaptation, not punishment",
+                        assumptions: ["Can assess capacity constraints", "System can adapt"],
+                        atcfRequired: 0.5
+                    }
+                },
+                stressImpact: "Care + Virtue align even under stress; Kantian/Contract become rigid when ATCF drops"
+            },
+            {
+                id: 3,
+                title: "The Job Reference",
+                description: "A former coworker asks you for a reference for their dream job. You know they're talented but also that they took credit for your work on a major project. They've apologized but never publicly corrected the record.",
+                choices: [
+                    "Give honest reference mentioning both strengths and credit issue",
+                    "Give positive reference focusing only on their talents",
+                    "Decline to give reference",
+                    "Give positive reference but privately tell hiring manager the truth"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 0,
+                        label: "Honest balanced reference",
+                        reasoning: "Gives employer accurate information for best hiring decision; balances multiple interests",
+                        assumptions: ["Honesty produces better outcomes", "Can predict employer needs"],
+                        atcfRequired: 0.5
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Honest balanced reference",
+                        reasoning: "Duty to be truthful; lying or deception cannot be universalized",
+                        assumptions: ["Truth-telling is categorical duty", "Have autonomous choice"],
+                        atcfRequired: 0.4
+                    },
+                    virtue: {
+                        choice: 0,
+                        label: "Honest balanced reference",
+                        reasoning: "Honesty and justice are virtues; magnanimity includes fairness",
+                        assumptions: ["Can balance multiple virtues", "Context allows honest expression"],
+                        atcfRequired: 0.6
+                    },
+                    care: {
+                        choice: 1,
+                        label: "Positive reference only",
+                        reasoning: "Past relationship + their apology creates obligation to help rather than harm",
+                        assumptions: ["Relationship still has value", "Forgiveness is relational priority"],
+                        atcfRequired: 0.5
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Honest balanced reference",
+                        reasoning: "Reference relationship creates contract to provide honest assessment",
+                        assumptions: ["Both parties understand reference norms", "Honesty serves system"],
+                        atcfRequired: 0.5
+                    },
+                    coherence: {
+                        choice: 0,
+                        label: "Honest balanced reference",
+                        reasoning: "Maintains your coherence (truth) while acknowledging their growth (apology)",
+                        assumptions: ["Can hold complexity", "Truth and compassion can coexist"],
+                        atcfRequired: 0.5
+                    }
+                },
+                stressImpact: "Most frameworks converge here (functional equivalence); Care diverges on relationship priority"
+            },
+            {
+                id: 4,
+                title: "The Healthcare Decision",
+                description: "Your aging parent has early dementia and needs to decide about future care. They're currently lucid and want to stay home, but you know their condition will worsen and home care will be extremely difficult for your family. The doctor privately tells you institutional care would be medically better.",
+                choices: [
+                    "Respect their current wishes for home care",
+                    "Advocate strongly for institutional care based on medical advice",
+                    "Propose home care now with agreement to transition later",
+                    "Make the decision yourself to protect them"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 1,
+                        label: "Advocate for institutional care",
+                        reasoning: "Better medical outcomes + reduced family burden maximizes overall welfare",
+                        assumptions: ["Can calculate family vs individual welfare", "Medical outcomes predictable"],
+                        atcfRequired: 0.7
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Respect current wishes",
+                        reasoning: "Autonomy requires respecting competent choices; cannot override for their 'own good'",
+                        assumptions: ["Person is autonomous", "Current rationality sufficient"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 2,
+                        label: "Home care with future transition",
+                        reasoning: "Practical wisdom (phronesis) balances respect with realism about changing needs",
+                        assumptions: ["Can navigate complexity", "Relationship allows honest discussion"],
+                        atcfRequired: 0.7
+                    },
+                    care: {
+                        choice: 0,
+                        label: "Respect current wishes",
+                        reasoning: "Knowing them deeply means honoring what matters to them, even if harder for you",
+                        assumptions: ["Deep relational knowledge", "Care means respect not control"],
+                        atcfRequired: 0.5
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Respect current wishes",
+                        reasoning: "While competent, they have right to determine care terms",
+                        assumptions: ["Competency determinable", "Prior autonomy has weight"],
+                        atcfRequired: 0.6
+                    },
+                    coherence: {
+                        choice: 2,
+                        label: "Home care with future transition",
+                        reasoning: "Respects current capacity state while acknowledging trajectory; adaptive plan",
+                        assumptions: ["Can project capacity decline", "Flexible planning possible"],
+                        atcfRequired: 0.6
+                    }
+                },
+                stressImpact: "Kantian + Care align on autonomy; Utilitarian calculation struggles under emotional stress"
+            },
+            {
+                id: 5,
+                title: "The Whistleblower Dilemma",
+                description: "You discover your company is cutting safety corners to meet deadlines. Reporting internally has been ignored. Going public could save lives but would likely cost you your job and harm your family financially. You have dependents relying on your income.",
+                choices: [
+                    "Go public despite personal cost",
+                    "Keep quiet to protect your family",
+                    "Document everything but wait for safer opportunity to report",
+                    "Quit and report after finding new job"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 0,
+                        label: "Go public now",
+                        reasoning: "Potential lives saved vastly outweigh personal financial harm",
+                        assumptions: ["Can calculate lives at risk", "Can weight personal vs public good"],
+                        atcfRequired: 0.7
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Go public now",
+                        reasoning: "Duty to prevent harm; cannot treat potential victims as mere means",
+                        assumptions: ["Have capacity to act autonomously", "Duty overrides consequences"],
+                        atcfRequired: 0.6
+                    },
+                    virtue: {
+                        choice: 3,
+                        label: "Quit then report",
+                        reasoning: "Courage + practical wisdom: do right thing but protect ability to continue doing good",
+                        assumptions: ["Can find new job", "Timing doesn't increase risk"],
+                        atcfRequired: 0.7
+                    },
+                    care: {
+                        choice: 1,
+                        label: "Protect family",
+                        reasoning: "Immediate relationships (family) take priority over distant potential harm",
+                        assumptions: ["Family relationship is primary", "Distant others less morally immediate"],
+                        atcfRequired: 0.4
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Go public now",
+                        reasoning: "Company violated social contract; public has right to know safety failures",
+                        assumptions: ["Public contract supersedes employment", "Enforcement systems exist"],
+                        atcfRequired: 0.6
+                    },
+                    coherence: {
+                        choice: 2,
+                        label: "Document and wait",
+                        reasoning: "Preserves your capacity to act (employment) while creating evidence for effective action",
+                        assumptions: ["Delay doesn't cause immediate harm", "Strategic timing possible"],
+                        atcfRequired: 0.6
+                    }
+                },
+                stressImpact: "Under financial stress, Care's family priority becomes overwhelming; others struggle"
+            },
+            {
+                id: 6,
+                title: "The Resource Allocation",
+                description: "You manage limited scholarship funds. Two equally qualified finalists: One is from a disadvantaged background and would be first in family to attend college. The other has a disability and the scholarship would enable them to afford needed accommodations. You can only award to one.",
+                choices: [
+                    "Award to disadvantaged student (socioeconomic equity)",
+                    "Award to student with disability (accommodation access)",
+                    "Split scholarship equally between both",
+                    "Create additional criteria to break the tie"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 3,
+                        label: "Additional criteria",
+                        reasoning: "More information allows better calculation of who will benefit most from education",
+                        assumptions: ["Can measure comparative benefit", "Future outcomes predictable"],
+                        atcfRequired: 0.8
+                    },
+                    kantian: {
+                        choice: 2,
+                        label: "Split equally",
+                        reasoning: "Equal dignity requires equal treatment when equally qualified",
+                        assumptions: ["Can identify equality", "Resources divisible"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 3,
+                        label: "Additional criteria",
+                        reasoning: "Practical wisdom requires looking deeper to make genuinely just choice",
+                        assumptions: ["Context provides guidance", "Justice requires discernment"],
+                        atcfRequired: 0.7
+                    },
+                    care: {
+                        choice: 0,
+                        label: "Award to disadvantaged",
+                        reasoning: "Knowing family history creates connection that influences caring response",
+                        assumptions: ["Personal narrative matters", "Can respond to particular situation"],
+                        atcfRequired: 0.5
+                    },
+                    contract: {
+                        choice: 3,
+                        label: "Additional criteria",
+                        reasoning: "Procedural fairness requires transparent, justified decision process",
+                        assumptions: ["Fair procedure exists", "Criteria can be justified"],
+                        atcfRequired: 0.6
+                    },
+                    coherence: {
+                        choice: 2,
+                        label: "Split equally",
+                        reasoning: "When capacity to distinguish is depleted, equal distribution maintains coherence",
+                        assumptions: ["Uncertainty doesn't paralyze", "Both deserve support"],
+                        atcfRequired: 0.4
+                    }
+                },
+                stressImpact: "Complex calculation fails under stress; Coherence + Kantian default to equality"
+            },
+            {
+                id: 7,
+                title: "The Personal Loyalty",
+                description: "Your best friend's partner confides in you that they're planning to propose, but you recently discovered your friend has been seriously considering breaking up (though they haven't told their partner). The proposal is expensive and will happen soon.",
+                choices: [
+                    "Tell your friend about the proposal plan immediately",
+                    "Tell the partner your friend has doubts",
+                    "Stay silent and let events unfold",
+                    "Hint to your friend without revealing the proposal"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 0,
+                        label: "Tell friend about proposal",
+                        reasoning: "Prevents expensive mistake + emotional harm; maximizes welfare for all parties",
+                        assumptions: ["Can predict outcomes", "Harm prevention outweighs confidence"],
+                        atcfRequired: 0.6
+                    },
+                    kantian: {
+                        choice: 2,
+                        label: "Stay silent",
+                        reasoning: "Cannot violate confidence given to you; duty not to deceive",
+                        assumptions: ["Promises are binding", "Have autonomous choice to refuse involvement"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 3,
+                        label: "Hint without revealing",
+                        reasoning: "Loyalty to friend + respect for confidence; wisdom finds middle path",
+                        assumptions: ["Can navigate complexity", "Relationships allow subtlety"],
+                        atcfRequired: 0.7
+                    },
+                    care: {
+                        choice: 0,
+                        label: "Tell friend about proposal",
+                        reasoning: "Primary relationship (best friend) creates stronger obligation than secondary confidence",
+                        assumptions: ["Relationship hierarchy exists", "Protecting friend is priority"],
+                        atcfRequired: 0.4
+                    },
+                    contract: {
+                        choice: 2,
+                        label: "Stay silent",
+                        reasoning: "Confidence created implicit contract; breaking it undermines trust system",
+                        assumptions: ["Confidences are contracts", "System value exceeds individual case"],
+                        atcfRequired: 0.5
+                    },
+                    coherence: {
+                        choice: 3,
+                        label: "Hint without revealing",
+                        reasoning: "Maintains your coherence (not lying) while respecting both relationships adaptively",
+                        assumptions: ["Can hold complexity", "Subtle influence possible"],
+                        atcfRequired: 0.6
+                    }
+                },
+                stressImpact: "Care's loyalty override becomes strong under stress; complex solutions (Virtue, Coherence) fail"
+            },
+            {
+                id: 8,
+                title: "The Truth vs. Kindness",
+                description: "An acquaintance with serious mental health struggles shows you their art/writing and asks for your honest opinion. The work is objectively poor, but you know harsh feedback could trigger a crisis. They specifically asked for 'brutal honesty' because others 'just patronize' them.",
+                choices: [
+                    "Give completely honest critical feedback as requested",
+                    "Give gentle positive feedback to protect them",
+                    "Give honest feedback but frame it constructively and supportively",
+                    "Decline to give feedback, citing lack of expertise"
+                ],
+                frameworks: {
+                    utilitarian: {
+                        choice: 2,
+                        label: "Honest but constructive",
+                        reasoning: "Balances request for honesty with harm prevention; enables growth without crisis",
+                        assumptions: ["Can predict harm threshold", "Constructive framing possible"],
+                        atcfRequired: 0.7
+                    },
+                    kantian: {
+                        choice: 0,
+                        label: "Completely honest",
+                        reasoning: "Respect for autonomy requires taking request seriously; lying disrespects personhood",
+                        assumptions: ["Request reflects autonomous choice", "Truth-telling is duty"],
+                        atcfRequired: 0.5
+                    },
+                    virtue: {
+                        choice: 2,
+                        label: "Honest but constructive",
+                        reasoning: "Honesty + compassion are both virtues; practical wisdom balances them",
+                        assumptions: ["Can balance virtues", "Context allows nuanced response"],
+                        atcfRequired: 0.7
+                    },
+                    care: {
+                        choice: 1,
+                        label: "Gentle positive",
+                        reasoning: "Knowing their vulnerability creates responsibility to protect, even from requested harm",
+                        assumptions: ["Know their fragility", "Protection supersedes request"],
+                        atcfRequired: 0.4
+                    },
+                    contract: {
+                        choice: 0,
+                        label: "Completely honest",
+                        reasoning: "They created contract ('brutal honesty'); violating terms undermines trust",
+                        assumptions: ["Contract is clear", "Terms are binding"],
+                        atcfRequired: 0.5
+                    },
+                    coherence: {
+                        choice: 2,
+                        label: "Honest but constructive",
+                        reasoning: "Respects their capacity for truth while adapting to their current state",
+                        assumptions: ["Can assess capacity", "Truth and care aren't incompatible"],
+                        atcfRequired: 0.6
+                    }
+                },
+                stressImpact: "Under stress, Care prioritizes protection; Kantian/Contract become rigid about honesty"
+            }
+        ];
+        
+        // File import handler
+        const importZone = document.getElementById('importZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        importZone.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    eTwin = JSON.parse(event.target.result);
+                    debugLog('E-Twin loaded', eTwin);
+                    displayETwin();
+                    document.getElementById('startBtn').disabled = false;
+                } catch (error) {
+                    console.error('Error loading file:', error);
+                    alert('Error reading file. Please ensure it is a valid Digital E-Twin JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        });
+        
+        function displayETwin() {
+            const preview = document.getElementById('etwinPreview');
+            const agent = eTwin.agentParameters;
+            const prf = eTwin.prf22;
+            
+            currentATCF = agent.FHRI;
+            
+            preview.innerHTML = `
+                <div class="etwin-card">
+                    <h3>✅ Digital E-Twin Loaded Successfully</h3>
+                    <p style="margin: 10px 0; color: #666;">Created: ${new Date(eTwin.metadata.created).toLocaleDateString()}</p>
+                    
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">${prf.moralFoundations.Care.toFixed(1)}</div>
+                            <div class="metric-label">Care Foundation</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${prf.moralFoundations.Fairness.toFixed(1)}</div>
+                            <div class="metric-label">Fairness</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${prf.moralFoundations.Loyalty.toFixed(1)}</div>
+                            <div class="metric-label">Loyalty</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${agent.FHRI.toFixed(2)}</div>
+                            <div class="metric-label">ATCF (Resilience)</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${agent.KIC.toFixed(2)}</div>
+                            <div class="metric-label">Identity Coherence</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${agent.trust.toFixed(2)}</div>
+                            <div class="metric-label">Trust</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            preview.style.display = 'block';
+        }
+        
+        function startScenarios() {
+            debugLog('Starting scenarios');
+            document.getElementById('intro').classList.remove('active');
+            currentScenario = 0;
+            stressMode = false;
+            studentChoices = [];
+            matchData = [];
+            showScenario();
+        }
+        
+        function showScenario() {
+            debugLog('showScenario called', { currentScenario, stressMode, totalScenarios: scenarios.length });
+            
+            const scenariosDiv = document.getElementById('scenarios');
+            
+            // Update progress
+            const totalSteps = scenarios.length * 2; // baseline + stress
+            const currentStep = stressMode ? scenarios.length + currentScenario : currentScenario;
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            debugLog('Progress', { currentStep, totalSteps, progress });
+            
+            // Check if we're done with baseline scenarios
+            if (currentScenario >= scenarios.length && !stressMode) {
+                debugLog('Baseline complete, starting stress mode');
+                stressMode = true;
+                currentScenario = 0;
+                showStressIntro();
+                return;
+            }
+            
+            // Check if we're done with stress scenarios
+            if (currentScenario >= scenarios.length && stressMode) {
+                debugLog('All scenarios complete, generating results');
+                generateResults();
+                return;
+            }
+            
+            const scenario = scenarios[currentScenario];
+            debugLog('Showing scenario', scenario);
+            
+            scenariosDiv.innerHTML = `
+                <div class="debug-info">
+                    Scenario ${currentScenario + 1} of ${scenarios.length} | Mode: ${stressMode ? 'STRESS' : 'BASELINE'} | Progress: ${progress.toFixed(1)}%
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Scenario ${currentScenario + 1} of ${scenarios.length}</strong>
+                    ${stressMode ? '<br><span style="color: #dc3545; font-weight: bold;">⚠️ STRESS MODE ACTIVE - ATCF Reduced</span>' : ''}
+                </div>
+                
+                <div class="scenario-card">
+                    <div class="scenario-title">${scenario.title}</div>
+                    <div class="scenario-description">${scenario.description}</div>
+                    
+                    ${stressMode ? `
+                        <div class="alert alert-warning">
+                            <strong>Additional Stress Context:</strong> Imagine you're under deadline pressure, sleep-deprived, and your boss is watching. Your ATCF has dropped from ${eTwin.agentParameters.FHRI.toFixed(2)} to ${(eTwin.agentParameters.FHRI * 0.6).toFixed(2)}.
+                        </div>
+                    ` : ''}
+                    
+                    <h4 style="margin: 25px 0 15px 0;">How would each framework reason?</h4>
+                    
+                    <div class="framework-comparison">
+                        ${generateFrameworkCards(scenario)}
+                    </div>
+                    
+                    <h4 style="margin: 30px 0 15px 0;">What would YOU actually choose?</h4>
+                    <div class="choice-buttons" id="choiceButtons">
+                        ${scenario.choices.map((choice, idx) => `
+                            <div class="choice-button" onclick="selectChoice(${idx})">
+                                ${choice}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div id="matchResult"></div>
+                    
+                    <div class="nav-buttons">
+                        <button class="btn-secondary" onclick="prevScenario()" ${currentScenario === 0 && !stressMode ? 'disabled' : ''}>
+                            ← Previous
+                        </button>
+                        <button class="btn-primary" onclick="nextScenario()" id="nextBtn" disabled>
+                            ${currentScenario === scenarios.length - 1 && stressMode ? 'View Results →' : 'Continue →'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            scenariosDiv.classList.add('active');
+        }
+        
+        function generateFrameworkCards(scenario) {
+            const frameworks = [
+                { key: 'utilitarian', name: 'Utilitarian (Mill)', color: 'utilitarian' },
+                { key: 'kantian', name: 'Kantian (Deontology)', color: 'kantian' },
+                { key: 'virtue', name: 'Virtue Ethics (Aristotle)', color: 'virtue' },
+                { key: 'care', name: 'Care Ethics (Gilligan)', color: 'care' },
+                { key: 'contract', name: 'Social Contract (Rawls)', color: 'contract' },
+                { key: 'coherence', name: 'Coherence Ethics', color: 'coherence' }
+            ];
+            
+            return frameworks.map(fw => {
+                const data = scenario.frameworks[fw.key];
+                const userATCF = stressMode ? eTwin.agentParameters.FHRI * 0.6 : eTwin.agentParameters.FHRI;
+                
+                let status = 'capable';
+                let statusText = '✅ CAPABLE';
+                
+                if (userATCF < data.atcfRequired) {
+                    if (userATCF < data.atcfRequired * 0.7) {
+                        status = 'failed';
+                        statusText = '❌ FAILED';
+                    } else {
+                        status = 'degraded';
+                        statusText = '⚠️ DEGRADED';
+                    }
+                }
+                
+                return `
+                    <div class="framework-card ${fw.color}">
+                        <div class="framework-name">${fw.name}</div>
+                        <div class="framework-recommendation">
+                            Recommends: ${data.label}
+                        </div>
+                        <div class="framework-reasoning">
+                            ${data.reasoning}
+                        </div>
+                        <div class="framework-assumptions">
+                            <strong>Assumes:</strong> ${data.assumptions.join('; ')}
+                            <br><strong>Requires ATCF:</strong> ≥${data.atcfRequired.toFixed(1)} (You: ${userATCF.toFixed(2)})
+                        </div>
+                        <div class="status-badge status-${status}">
+                            ${statusText}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectChoice(choiceIdx) {
+            debugLog('Choice selected', choiceIdx);
+            
+            // Remove previous selections
+            document.querySelectorAll('.choice-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selection
+            document.querySelectorAll('.choice-button')[choiceIdx].classList.add('selected');
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+            
+            // Show match result
+            showMatchResult(choiceIdx);
+            
+            // Record choice
+            const scenario = scenarios[currentScenario];
+            studentChoices.push({
+                scenarioId: scenario.id,
+                stressMode: stressMode,
+                choice: choiceIdx,
+                atcf: stressMode ? eTwin.agentParameters.FHRI * 0.6 : eTwin.agentParameters.FHRI
+            });
+            
+            debugLog('Choices recorded', studentChoices);
+        }
+        
+        function showMatchResult(choiceIdx) {
+            const scenario = scenarios[currentScenario];
+            const matches = [];
+            const diverges = [];
+            
+            Object.entries(scenario.frameworks).forEach(([key, data]) => {
+                const name = {
+                    utilitarian: 'Utilitarian',
+                    kantian: 'Kantian',
+                    virtue: 'Virtue',
+                    care: 'Care',
+                    contract: 'Social Contract',
+                    coherence: 'Coherence'
+                }[key];
+                
+                if (data.choice === choiceIdx) {
+                    matches.push(name);
+                } else {
+                    diverges.push(name);
+                }
+            });
+            
+            const resultDiv = document.getElementById('matchResult');
+            resultDiv.innerHTML = `
+                <div class="match-result">
+                    <h4 style="margin-bottom: 15px;">Your Choice Analysis:</h4>
+                    ${matches.length > 0 ? `
+                        <div style="margin-bottom: 15px;">
+                            <strong>✅ MATCHED:</strong>
+                            <div class="match-frameworks">
+                                ${matches.map(m => `<span class="match-badge matched">${m}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${diverges.length > 0 ? `
+                        <div>
+                            <strong>❌ DIVERGED:</strong>
+                            <div class="match-frameworks">
+                                ${diverges.map(d => `<span class="match-badge diverged">${d}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Record match data
+            matchData.push({
+                scenarioId: scenario.id,
+                stressMode: stressMode,
+                matches: matches,
+                diverges: diverges
+            });
+            
+            debugLog('Match data recorded', matchData);
+        }
+        
+        function nextScenario() {
+            debugLog('Next scenario clicked');
+            currentScenario++;
+            document.getElementById('scenarios').classList.remove('active');
+            setTimeout(() => showScenario(), 100);
+        }
+        
+        function prevScenario() {
+            debugLog('Previous scenario clicked');
+            if (currentScenario > 0 || stressMode) {
+                currentScenario--;
+                if (currentScenario < 0 && stressMode) {
+                    stressMode = false;
+                    currentScenario = scenarios.length - 1;
+                }
+                studentChoices.pop();
+                matchData.pop();
+                document.getElementById('scenarios').classList.remove('active');
+                setTimeout(() => showScenario(), 100);
+            }
+        }
+        
+        function showStressIntro() {
+            debugLog('Showing stress intro');
+            const scenariosDiv = document.getElementById('scenarios');
+            
+            scenariosDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <h3 style="margin-bottom: 15px;">⚠️ Entering Stress Test Phase</h3>
+                    <p style="font-size: 1.1em; line-height: 1.6;">
+                        You've completed the baseline scenarios. Now we'll test the SAME scenarios again, but under stress conditions.
+                    </p>
+                </div>
+                
+                <div class="stress-slider-container">
+                    <h3 style="margin-bottom: 20px;">Your Current State Under Stress:</h3>
+                    
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value">${eTwin.agentParameters.FHRI.toFixed(2)}</div>
+                            <div class="metric-label">Baseline ATCF</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value" style="color: #dc3545;">${(eTwin.agentParameters.FHRI * 0.6).toFixed(2)}</div>
+                            <div class="metric-label">ATCF Under Stress</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">40%</div>
+                            <div class="metric-label">Capacity Reduction</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>What This Means:</strong>
+                        <ul style="margin-top: 10px; line-height: 1.8;">
+                            <li>Some frameworks will FAIL (can't function at reduced capacity)</li>
+                            <li>Others will DEGRADE (work partially but not optimally)</li>
+                            <li>A few remain FUNCTIONAL (designed for low ATCF states)</li>
+                            <li>Your choices may SHIFT as frameworks break down</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn-secondary" onclick="backToBaseline()">← Back to Baseline</button>
+                    <button class="btn-primary" onclick="continueToStress()">
+                        Begin Stress Testing 🔥
+                    </button>
+                </div>
+            `;
+            
+            scenariosDiv.classList.add('active');
+        }
+        
+        function backToBaseline() {
+            stressMode = false;
+            currentScenario = scenarios.length - 1;
+            showScenario();
+        }
+        
+        function continueToStress() {
+            debugLog('Continuing to stress mode');
+            document.getElementById('scenarios').classList.remove('active');
+            setTimeout(() => showScenario(), 100);
+        }
+        
+        function generateResults() {
+            debugLog('Generating results', { studentChoices, matchData });
+            
+            try {
+                // Hide scenarios, show results
+                document.getElementById('scenarios').classList.remove('active');
+                
+                // Calculate framework affinity
+                const frameworkCounts = {
+                    utilitarian: 0,
+                    kantian: 0,
+                    virtue: 0,
+                    care: 0,
+                    contract: 0,
+                    coherence: 0
+                };
+                
+                matchData.forEach(match => {
+                    match.matches.forEach(fw => {
+                        const key = {
+                            'Utilitarian': 'utilitarian',
+                            'Kantian': 'kantian',
+                            'Virtue': 'virtue',
+                            'Care': 'care',
+                            'Social Contract': 'contract',
+                            'Coherence': 'coherence'
+                        }[fw];
+                        if (key) frameworkCounts[key]++;
+                    });
+                });
+                
+                debugLog('Framework counts', frameworkCounts);
+                
+                // Sort by count
+                const sorted = Object.entries(frameworkCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => ({
+                        key: key,
+                        count: count,
+                        percentage: (count / scenarios.length * 100).toFixed(1)
+                    }));
+                
+                const primary = sorted[0];
+                const secondary = sorted[1];
+                
+                debugLog('Framework affinity', { primary, secondary });
+                
+                // Generate results page
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = `
+                    <h2 style="color: #667eea; margin-bottom: 30px; text-align: center; font-size: 2.5em;">
+                        📊 Your Ethical Topology
+                    </h2>
+                    
+                    <div class="alert alert-success">
+                        <strong>✅ Analysis Complete!</strong> Tested ${scenarios.length} scenarios in baseline + stress conditions. Your unique phenomenological framework has been mapped against 6 classical theories.
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>📊 Framework Affinity</h3>
+                        <p style="margin-bottom: 20px; color: #666;">Which classical theories matched your actual choices?</p>
+                        
+                        ${sorted.map((fw, idx) => {
+                            const frameworkNames = {
+                                utilitarian: 'Utilitarian (Consequentialism)',
+                                kantian: 'Kantian (Deontology)',
+                                virtue: 'Virtue Ethics (Aristotle)',
+                                care: 'Care Ethics (Gilligan)',
+                                contract: 'Social Contract (Rawls)',
+                                coherence: 'Coherence Ethics'
+                            };
+                            
+                            const colors = {
+                                utilitarian: '#28a745',
+                                kantian: '#007bff',
+                                virtue: '#ffc107',
+                                care: '#e83e8c',
+                                contract: '#6f42c1',
+                                coherence: '#667eea'
+                            };
+                            
+                            return `
+                                <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid ${colors[fw.key]};">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <strong>${idx + 1}. ${frameworkNames[fw.key]}</strong>
+                                        <span style="font-size: 1.2em; font-weight: bold; color: ${colors[fw.key]};">
+                                            ${fw.percentage}% (${fw.count}/${scenarios.length})
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>PRIMARY FRAMEWORK: ${primary.key.charAt(0).toUpperCase() + primary.key.slice(1)}</strong><br>
+                        Your choices aligned with ${primary.key} in ${primary.percentage}% of scenarios.<br><br>
+                        This suggests your natural ethical reasoning pattern most closely resembles this philosophical approach.
+                    </div>
+                    
+                    ${secondary.count > 0 ? `
+                        <div class="alert alert-info" style="margin-top: 15px;">
+                            <strong>SECONDARY FRAMEWORK: ${secondary.key.charAt(0).toUpperCase() + secondary.key.slice(1)}</strong><br>
+                            ${secondary.percentage}% match suggests you use this as a backup or complementary approach.
+                        </div>
+                    ` : ''}
+                    
+                    <div class="result-card">
+                        <h3>💡 What This Means</h3>
+                        <p style="line-height: 1.8;">
+                            These results show which classical philosophical frameworks best describe your actual ethical decision-making—not just what you think you believe, but how you actually reason through dilemmas.
+                        </p>
+                        <p style="line-height: 1.8; margin-top: 15px;">
+                            <strong>Next Steps:</strong> Compare these results with your PRF-22 scores, use them in your reflection essays, and bring them to the Ouroboros simulation to see how individual ethics scale to institutional dynamics.
+                        </p>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); padding: 30px; border-radius: 10px; color: white; text-align: center; margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">💾 Save Your Analysis</h3>
+                        <p style="margin-bottom: 20px;">Download your complete results for reflection essays and Week 11-12 integration</p>
+                        <button class="btn-success" onclick="downloadResults()" style="background: white; color: #28a745; font-size: 1.2em;">
+                            📥 Download Complete Report
+                        </button>
+                    </div>
+                    
+                    <div class="nav-buttons" style="margin-top: 30px;">
+                        <button class="btn-secondary" onclick="location.reload()">🔄 Start Over</button>
+                        <button class="btn-primary" onclick="window.print()">🖨️ Print Results</button>
+                    </div>
+                `;
+                
+                resultsDiv.classList.add('active');
+                document.getElementById('progressBar').style.width = '100%';
+                
+                debugLog('Results displayed successfully');
+                
+            } catch (error) {
+                console.error('Error generating results:', error);
+                alert('Error generating results. Check console for details.');
+            }
+        }
+        
+        function downloadResults() {
+            const frameworkCounts = {
+                utilitarian: 0,
+                kantian: 0,
+                virtue: 0,
+                care: 0,
+                contract: 0,
+                coherence: 0
+            };
+            
+            matchData.forEach(match => {
+                match.matches.forEach(fw => {
+                    const key = {
+                        'Utilitarian': 'utilitarian',
+                        'Kantian': 'kantian',
+                        'Virtue': 'virtue',
+                        'Care': 'care',
+                        'Social Contract': 'contract',
+                        'Coherence': 'coherence'
+                    }[fw];
+                    if (key) frameworkCounts[key]++;
+                });
+            });
+            
+            const sorted = Object.entries(frameworkCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([key, count]) => ({
+                    key: key,
+                    count: count,
+                    percentage: (count / scenarios.length * 100).toFixed(1)
+                }));
+            
+            const report = `
+FRAMEWORK LENS - RESULTS REPORT
+Generated: ${new Date().toLocaleDateString()}
+Digital E-Twin: ${eTwin.metadata.created}
+
+========================================
+FRAMEWORK AFFINITY
+========================================
+
+${sorted.map(fw => `${fw.key.charAt(0).toUpperCase() + fw.key.slice(1)}: ${fw.percentage}% (${fw.count}/${scenarios.length} scenarios)`).join('\n')}
+
+========================================
+PRIMARY FRAMEWORK
+========================================
+
+${sorted[0].key.toUpperCase()}: ${sorted[0].percentage}% match
+
+This suggests your natural ethical reasoning pattern most closely resembles this philosophical approach.
+
+========================================
+DETAILED SCENARIO RESULTS
+========================================
+
+${studentChoices.map((choice, idx) => {
+    const scenario = scenarios.find(s => s.id === choice.scenarioId);
+    const match = matchData[idx];
+    return `
+Scenario ${choice.scenarioId}: ${scenario.title}
+Mode: ${choice.stressMode ? 'STRESS' : 'BASELINE'}
+Your Choice: Option ${choice.choice + 1}
+Matched: ${match.matches.join(', ')}
+Diverged: ${match.diverges.join(', ')}
+`;
+}).join('\n')}
+
+========================================
+NOTES
+========================================
+
+Use these results in your reflection essays and bring them to the Ouroboros simulation (Week 11-12) to see how individual ethics scale to institutional dynamics.
+
+---
+Framework Lens v1.0 - Saint Petersburg College Ethics Institute
+            `;
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `framework_lens_results_${new Date().toISOString().split('T')[0]}.txt`;
+            link.click();
+        }
+        
+        // Initialize
+        debugLog('Framework Lens initialized - ALL 8 SCENARIOS LOADED');
+        document.getElementById('progressBar').style.width = '0%';
+    </script>
 </body>
 </html>
